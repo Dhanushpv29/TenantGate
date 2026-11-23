@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: tenantgate
+      POSTGRES_PASSWORD: tenantgate
+      POSTGRES_DB: tenantgate
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tenantgate"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  api:
+    build: .
+    env_file: .env
+    ports: ["8000:8000"]
+    depends_on:
+      db: {condition: service_healthy}
+
+volumes:
+  pgdata:
